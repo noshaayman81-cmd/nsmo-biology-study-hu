@@ -1,0 +1,238 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>NSMO Biology Student Study Hub</title>
+<style>
+:root {
+  --bg:#f6faf9; --panel:#ffffff; --ink:#12343b; --muted:#5c7378;
+  --teal:#0f766e; --teal2:#dff5f1; --blue:#e7f0ff; --gold:#fff3c4;
+  --red:#ffe6e6; --green:#e5f7e9; --border:#cfe2df;
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;background:var(--bg);color:var(--ink)}
+header{background:linear-gradient(135deg,#0b5f62,#178a7d);color:white;padding:22px 16px}
+header .wrap, main{max-width:980px;margin:auto}
+h1{font-size:clamp(24px,4vw,38px);margin:0 0 6px}
+header p{margin:0;opacity:.95}
+main{padding:18px 14px 40px}
+nav{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px}
+nav button{border:1px solid var(--border);background:white;color:var(--ink);padding:11px 14px;border-radius:12px;font-weight:700;cursor:pointer}
+nav button.active{background:var(--teal);color:white;border-color:var(--teal)}
+.panel{display:none}
+.panel.active{display:block}
+.cardbox,.quizbox,.reviewbox{background:var(--panel);border:1px solid var(--border);border-radius:18px;padding:18px}
+.controls{display:flex;gap:9px;flex-wrap:wrap;align-items:center;margin:12px 0}
+button,.btn{font:inherit}
+.action{border:0;border-radius:11px;padding:11px 15px;background:var(--teal);color:white;font-weight:700;cursor:pointer;min-height:44px}
+.secondary{background:white;color:var(--ink);border:1px solid var(--border)}
+select{font:inherit;padding:10px 12px;border:1px solid var(--border);border-radius:10px;background:white;min-height:44px}
+.progress{height:9px;background:#e8efee;border-radius:999px;overflow:hidden}
+.progress>div{height:100%;background:var(--teal);width:0}
+.flip-card{min-height:260px;display:flex;flex-direction:column;justify-content:center;align-items:flex-start;text-align:left;width:100%;border:1px solid var(--border);border-radius:18px;padding:24px;background:white;cursor:pointer}
+.kicker{font-size:12px;font-weight:800;color:var(--teal);letter-spacing:.08em;text-transform:uppercase}
+.big{font-size:clamp(22px,4vw,32px);line-height:1.25;font-weight:800;margin-top:10px}
+.meta{color:var(--muted);font-size:14px}
+.qtitle{font-size:22px;font-weight:800;margin:4px 0 14px}
+.options{display:grid;gap:9px}
+.opt{width:100%;text-align:left;border:1px solid var(--border);background:white;border-radius:12px;padding:13px;cursor:pointer;min-height:48px}
+.opt:hover{border-color:var(--teal)}
+.opt.correct{background:var(--green);border-color:#72be7e}
+.opt.wrong{background:var(--red);border-color:#df8f8f}
+.feedback{margin-top:14px;padding:12px 14px;border-radius:12px;background:var(--teal2);display:none}
+.feedback.show{display:block}
+.score{font-weight:800}
+.pill{display:inline-block;padding:5px 9px;border-radius:999px;background:var(--blue);font-size:13px;font-weight:700}
+.review-item{border-top:1px solid var(--border);padding:12px 0}
+.review-item:first-child{border-top:0}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.challenge{background:linear-gradient(180deg,#fff,#f5fbfa);border:1px solid var(--border);border-radius:18px;padding:20px}
+.hidden{display:none!important}
+@media(max-width:640px){.grid2{grid-template-columns:1fr} .flip-card{min-height:230px}}
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <h1>NSMO Biology Study Hub</h1>
+    <p>Student Version • Flashcards • Practice Quiz • Challenge Quiz • Wrong Answer Review</p>
+  </div>
+</header>
+<main>
+  <nav aria-label="Study sections">
+    <button data-tab="flash" class="active">Flashcards</button>
+    <button data-tab="practice">Practice Quiz</button>
+    <button data-tab="hard">Challenge Quiz</button>
+    <button data-tab="review">Wrong Answers</button>
+    <button data-tab="final">Final Challenge</button>
+  </nav>
+
+  <section id="flash" class="panel active">
+    <div class="cardbox">
+      <div class="grid2">
+        <div>
+          <div class="kicker">Flashcard Review</div>
+          <h2 style="margin:.35rem 0">Study one idea at a time</h2>
+        </div>
+        <div class="controls" style="justify-content:flex-end">
+          <select id="fcFilter" aria-label="Filter flashcards by chapter">
+            <option value="All">All Chapters</option>
+            <option>Cell Structure & Function</option>
+            <option>Cell Chemistry</option>
+            <option>Cellular Energy</option>
+            <option>Cell Division</option>
+            <option>Ecology</option>
+          </select>
+        </div>
+      </div>
+      <div class="meta"><span id="fcCat"></span> • <span id="fcCount"></span></div>
+      <div class="progress" style="margin:8px 0 14px"><div id="fcProg"></div></div>
+      <button id="flashCard" class="flip-card" type="button">
+        <div class="kicker" id="fcSide">Question</div>
+        <div class="big" id="fcText"></div>
+        <div class="meta" style="margin-top:18px">Tap the card to flip</div>
+      </button>
+      <div class="controls">
+        <button class="action secondary" id="prevCard">Previous</button>
+        <button class="action" id="flipCard">Flip</button>
+        <button class="action secondary" id="nextCard">Next</button>
+        <button class="action secondary" id="shuffleCards" style="margin-left:auto">Shuffle</button>
+      </div>
+    </div>
+  </section>
+
+  <section id="practice" class="panel">
+    <div class="quizbox">
+      <div class="kicker">Practice Quiz</div>
+      <h2>15 Questions • Easy to Medium</h2>
+      <div id="practiceQuiz"></div>
+    </div>
+  </section>
+
+  <section id="hard" class="panel">
+    <div class="quizbox">
+      <div class="kicker">Challenge Quiz</div>
+      <h2>10 Questions • Medium to Hard</h2>
+      <div id="hardQuiz"></div>
+    </div>
+  </section>
+
+  <section id="review" class="panel">
+    <div class="reviewbox">
+      <div class="kicker">Wrong Answer Review</div>
+      <h2>Learn from mistakes</h2>
+      <p class="meta">Every wrong answer from either quiz appears here during this study session.</p>
+      <div id="wrongList"></div>
+    </div>
+  </section>
+
+  <section id="final" class="panel">
+    <div class="challenge">
+      <div class="kicker">Final Challenge</div>
+      <h2>Mixed Biology Challenge</h2>
+      <p>Press Start to get 10 mixed questions from the study bank.</p>
+      <button class="action" id="startFinal">Start Final Challenge</button>
+      <div id="finalQuiz" style="margin-top:16px"></div>
+    </div>
+  </section>
+</main>
+
+<script>
+const flashcards = [["Cell Structure & Function", "What is a cell?", "The basic structural and functional unit of all living organisms."], ["Cell Structure & Function", "What is a prokaryotic cell?", "A cell whose genetic material is free in the cytoplasm and is not enclosed by a nuclear membrane."], ["Cell Structure & Function", "What is a eukaryotic cell?", "A cell whose genetic material is enclosed inside a defined, membrane-bound nucleus."], ["Cell Structure & Function", "Put the biological levels of organization in order.", "Cell → Tissue → Organ → Organ System → Organism."], ["Cell Structure & Function", "What is a tissue?", "A group of similar cells performing the same specific function."], ["Cell Structure & Function", "What is an organ?", "A group of specialized tissues performing distinct biological functions."], ["Cell Structure & Function", "What is an organ system?", "A group of organs working together to carry out complex body functions."], ["Cell Structure & Function", "What is protoplasm?", "All living contents within the plasma membrane, including the cytoplasm and nucleus."], ["Cell Structure & Function", "State one principle of cell theory.", "The cell is the basic unit of structure and function in living organisms."], ["Cell Structure & Function", "State the second principle of cell theory.", "All cells arise from pre-existing cells through cell division."], ["Cell Structure & Function", "What is the main role of the plasma membrane?", "It separates the cell from its surroundings and controls movement of materials into and out of the cell."], ["Cell Structure & Function", "What is the role of the nucleus?", "It contains genetic material and controls cell activities."], ["Cell Structure & Function", "What do ribosomes do?", "They make proteins."], ["Cell Structure & Function", "What is the main function of the rough ER?", "It helps make and process proteins and has ribosomes attached."], ["Cell Structure & Function", "How is smooth ER different from rough ER?", "Smooth ER does not have ribosomes attached."], ["Cell Structure & Function", "What does the Golgi apparatus do?", "It modifies, sorts, packages, and distributes cellular materials."], ["Cell Structure & Function", "What is a major function of a vacuole?", "Storage of materials."], ["Cell Structure & Function", "What is the role of mitochondria?", "They are a major site of cellular respiration and energy production."], ["Cell Structure & Function", "What is the role of chloroplasts?", "They carry out photosynthesis in plant cells."], ["Cell Structure & Function", "What is the function of the cell wall?", "It provides support and protection around the cell membrane in plant cells."], ["Cell Chemistry", "What do enzymes do?", "They speed up chemical reactions by lowering the activation energy."], ["Cell Chemistry", "What is activation energy?", "The energy needed to start a chemical reaction."], ["Cell Chemistry", "Which two conditions in the package can strongly affect enzyme activity?", "Temperature and pH."], ["Cellular Energy", "What is ATP?", "The main cellular energy molecule. It contains adenine, ribose, and three phosphate groups."], ["Cellular Energy", "When does ATP release energy?", "When ATP loses a phosphate group and becomes ADP."], ["Cellular Energy", "What is photosynthesis?", "A process that converts light energy into chemical energy stored in glucose."], ["Cellular Energy", "Where does photosynthesis occur?", "In chloroplasts."], ["Cellular Energy", "What happens in the light-dependent reactions?", "Light energy is captured to make ATP and NADPH; water is split and oxygen is released."], ["Cellular Energy", "What happens in the light-independent reactions?", "ATP and NADPH are used with carbon dioxide to build glucose."], ["Cellular Energy", "What is cellular respiration?", "The oxidation of food molecules to release usable energy for cells."], ["Cellular Energy", "Where does glycolysis occur?", "In the cytoplasm."], ["Cellular Energy", "What are the main products of glycolysis listed in the package?", "Two pyruvate molecules, 2 ATP, and 2 NADH."], ["Cellular Energy", "Where does the Krebs cycle occur?", "In the mitochondrial matrix."], ["Cellular Energy", "Where does the electron transport chain occur?", "In the inner mitochondrial membrane."], ["Cellular Energy", "What happens in lactic acid fermentation?", "Pyruvate is converted to lactic acid when oxygen is limited."], ["Cellular Energy", "What happens in alcoholic fermentation?", "Pyruvate is converted to ethanol and carbon dioxide."], ["Cell Division", "What happens during G1?", "The cell grows, performs normal functions, and prepares for later stages."], ["Cell Division", "What happens during S phase?", "DNA is replicated."], ["Cell Division", "What happens during G2?", "The cell prepares for division and produces proteins needed for division."], ["Cell Division", "What is a major result of meiosis?", "It produces haploid reproductive cells and reduces chromosome number by half."], ["Cell Division", "How many chromosomes are in a human body cell?", "46 chromosomes, arranged in 23 pairs."], ["Cell Division", "How many chromosomes are in a human gamete?", "23 chromosomes."], ["Ecology", "What are biotic factors?", "The living components of an ecosystem."], ["Ecology", "What are abiotic factors?", "The nonliving components of an ecosystem, such as water, air, and temperature."], ["Ecology", "Put ecological levels in order.", "Organism → Population → Community → Ecosystem → Biome → Biosphere."], ["Ecology", "What is a habitat?", "The place or area where an organism lives."], ["Ecology", "What is a niche?", "The role an organism performs in its environment."], ["Ecology", "What is competition?", "An interaction in which organisms compete for the same limited resource."], ["Ecology", "What is predation?", "An interaction in which one organism feeds on another."], ["Ecology", "What is mutualism?", "A symbiotic relationship in which both organisms benefit."], ["Ecology", "What is commensalism?", "A relationship in which one organism benefits while the other is unaffected."], ["Ecology", "What is parasitism?", "A relationship in which one organism benefits while the other is harmed."], ["Ecology", "What is a food chain?", "A sequence showing energy transfer from one organism to another."], ["Ecology", "What is a food web?", "A model of interconnected and overlapping food chains."], ["Ecology", "What can an ecological pyramid represent?", "Energy, biomass, or number of organisms at each trophic level."], ["Ecology", "What is primary succession?", "Succession that begins in an area without soil."], ["Ecology", "What is secondary succession?", "Succession that begins where soil is already present."]];
+const practiceBank = [["Which statement is part of cell theory?", ["All cells arise from pre-existing cells", "Only animal cells divide", "Cells form only from nonliving matter", "Only multicellular organisms have cells"], 0], ["Which cell type has DNA enclosed in a nucleus?", ["Prokaryotic", "Eukaryotic", "Bacterial only", "Neither"], 1], ["Which organelle makes proteins?", ["Ribosome", "Vacuole", "Mitochondrion", "Cell wall"], 0], ["Which organelle is a major site of cellular respiration?", ["Mitochondrion", "Golgi apparatus", "Nucleus", "Cell wall"], 0], ["What is the main effect of an enzyme?", ["It lowers activation energy", "It becomes the product", "It stops reactions", "It permanently raises temperature"], 0], ["What happens when ATP becomes ADP?", ["Energy is released", "DNA is copied", "Photosynthesis stops", "The cell becomes haploid"], 0], ["Where does glycolysis occur?", ["Cytoplasm", "Mitochondrial matrix", "Inner mitochondrial membrane", "Nucleus"], 0], ["What is copied during S phase?", ["DNA", "ATP", "Glucose", "Cell wall"], 0], ["What is a major result of meiosis?", ["Haploid reproductive cells are produced", "Two identical body cells are always produced", "Glucose is formed", "ATP becomes ADP"], 0], ["Which term means the place where an organism lives?", ["Habitat", "Niche", "Population", "Biome"], 0], ["Which relationship benefits both organisms?", ["Mutualism", "Parasitism", "Competition", "Predation"], 0], ["Which relationship benefits one organism while the other is unaffected?", ["Commensalism", "Mutualism", "Parasitism", "Competition"], 0], ["A food web is best described as:", ["Interconnected food chains", "One straight feeding pathway", "Only abiotic factors", "A cell cycle diagram"], 0], ["Primary succession begins:", ["Without soil", "Where soil is already present", "Only in oceans", "Only after meiosis"], 0], ["Which is an abiotic factor?", ["Temperature", "Bacteria", "Plant", "Animal"], 0]];
+const hardBank = [["A cell has DNA but no membrane-bound nucleus. It is most likely:", ["Prokaryotic", "Eukaryotic", "A tissue", "An organ"], 0], ["A cell is making a large amount of protein. Which structure would be especially important?", ["Ribosomes", "Cell wall", "Vacuole", "Chloroplast only"], 0], ["If enzyme activity changes after a large change in temperature, which idea from the package best explains this?", ["Temperature can affect enzyme activity", "Enzymes are made of ATP", "Enzymes always work at the same rate", "Temperature only affects DNA"], 0], ["Which pair is correctly matched?", ["Glycolysis — cytoplasm", "Krebs cycle — nucleus", "ETC — cytoplasm", "Photosynthesis — mitochondrion"], 0], ["Which stage of aerobic respiration produces most ATP according to the package?", ["Electron transport chain", "Glycolysis", "DNA replication", "Fermentation"], 0], ["Which statement best compares photosynthesis and cellular respiration?", ["Photosynthesis stores energy in glucose; respiration releases usable energy from food", "Both occur only in mitochondria", "Both require meiosis", "Both produce only carbon dioxide"], 0], ["If a human body cell has 46 chromosomes, a human gamete has:", ["23", "46", "92", "12"], 0], ["A disturbance removes organisms but leaves soil. Which process is expected?", ["Secondary succession", "Primary succession", "Meiosis", "Glycolysis"], 0], ["A bird builds a nest in a tree and the tree is not helped or harmed. This is:", ["Commensalism", "Mutualism", "Parasitism", "Predation"], 0], ["Which sequence is correct from smallest ecological level to largest?", ["Organism → Population → Community → Ecosystem → Biome → Biosphere", "Population → Organism → Community → Biosphere → Ecosystem → Biome", "Organism → Community → Population → Ecosystem → Biosphere → Biome", "Ecosystem → Organism → Population → Community → Biome → Biosphere"], 0]];
+
+const wrongAnswers = [];
+const tabs = [...document.querySelectorAll('nav button')];
+tabs.forEach(b => b.addEventListener('click', () => {
+  tabs.forEach(x=>x.classList.remove('active'));
+  b.classList.add('active');
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.getElementById(b.dataset.tab).classList.add('active');
+  if (b.dataset.tab==='review') renderWrong();
+}));
+
+let fcActive = flashcards.map((_,i)=>i), fcPos=0, fcFlipped=false;
+const fcFilter=document.getElementById('fcFilter'), fcText=document.getElementById('fcText'),
+fcSide=document.getElementById('fcSide'), fcCat=document.getElementById('fcCat'),
+fcCount=document.getElementById('fcCount'), fcProg=document.getElementById('fcProg');
+function renderFC(){
+  const c=flashcards[fcActive[fcPos]];
+  fcText.textContent=fcFlipped?c[2]:c[1];
+  fcSide.textContent=fcFlipped?'Answer':'Question';
+  fcCat.textContent=c[0];
+  fcCount.textContent=(fcPos+1)+' / '+fcActive.length;
+  fcProg.style.width=((fcPos+1)/fcActive.length*100)+'%';
+}
+function flipFC(){fcFlipped=!fcFlipped;renderFC();}
+document.getElementById('flashCard').addEventListener('click',flipFC);
+document.getElementById('flipCard').addEventListener('click',flipFC);
+document.getElementById('nextCard').addEventListener('click',()=>{fcPos=(fcPos+1)%fcActive.length;fcFlipped=false;renderFC();});
+document.getElementById('prevCard').addEventListener('click',()=>{fcPos=(fcPos-1+fcActive.length)%fcActive.length;fcFlipped=false;renderFC();});
+document.getElementById('shuffleCards').addEventListener('click',()=>{
+  for(let i=fcActive.length-1;i>0;i--){let j=Math.floor(Math.random()*(i+1));[fcActive[i],fcActive[j]]=[fcActive[j],fcActive[i]];}
+  fcPos=0;fcFlipped=false;renderFC();
+});
+fcFilter.addEventListener('change',()=>{
+  fcActive=flashcards.map((c,i)=>[c,i]).filter(([c])=>fcFilter.value==='All'||c[0]===fcFilter.value).map(x=>x[1]);
+  fcPos=0;fcFlipped=false;renderFC();
+});
+renderFC();
+
+function makeQuiz(rootId, bank){
+  const root=document.getElementById(rootId);
+  let pos=0, score=0, answered=false;
+  const data=bank.map(q=>({q:q[0],opts:q[1],correct:q[2]}));
+  function draw(){
+    if(pos>=data.length){
+      root.innerHTML=`<div class="cardbox"><div class="qtitle">Finished!</div><p class="score">Score: ${score} / ${data.length}</p><button class="action" id="${rootId}Restart">Try Again</button></div>`;
+      document.getElementById(rootId+'Restart').addEventListener('click',()=>{pos=0;score=0;answered=false;draw();});
+      return;
+    }
+    const x=data[pos];
+    root.innerHTML=`<div class="meta">Question ${pos+1} of ${data.length}</div>
+      <div class="progress" style="margin:8px 0 16px"><div style="width:${(pos+1)/data.length*100}%"></div></div>
+      <div class="qtitle">${x.q}</div>
+      <div class="options">${x.opts.map((o,i)=>`<button type="button" class="opt" data-i="${i}">${String.fromCharCode(65+i)}. ${o}</button>`).join('')}</div>
+      <div class="feedback" id="${rootId}Fb"></div>
+      <div class="controls"><span class="score">Score: ${score}</span><button type="button" class="action hidden" id="${rootId}Next">Next</button></div>`;
+    answered=false;
+    root.querySelectorAll('.opt').forEach(btn=>btn.addEventListener('click',()=>{
+      if(answered)return; answered=true;
+      const i=Number(btn.dataset.i), correct=x.correct;
+      root.querySelectorAll('.opt')[correct].classList.add('correct');
+      const fb=document.getElementById(rootId+'Fb');
+      if(i===correct){score++;fb.textContent='Correct!';}
+      else {
+        btn.classList.add('wrong');
+        fb.textContent='Not quite. Correct answer: '+x.opts[correct];
+        wrongAnswers.push({question:x.q,your:x.opts[i],correct:x.opts[correct]});
+      }
+      fb.classList.add('show');
+      document.getElementById(rootId+'Next').classList.remove('hidden');
+      root.querySelector('.score').textContent='Score: '+score;
+    }));
+    document.getElementById(rootId+'Next').addEventListener('click',()=>{pos++;draw();});
+  }
+  draw();
+}
+makeQuiz('practiceQuiz', practiceBank);
+makeQuiz('hardQuiz', hardBank);
+
+function renderWrong(){
+  const root=document.getElementById('wrongList');
+  if(!wrongAnswers.length){root.innerHTML='<p class="pill">No wrong answers yet. Keep going!</p>';return;}
+  root.innerHTML=wrongAnswers.map((w,i)=>`<div class="review-item"><strong>${i+1}. ${w.question}</strong><div class="meta">Your answer: ${w.your}</div><div>Correct answer: <b>${w.correct}</b></div></div>`).join('');
+}
+
+document.getElementById('startFinal').addEventListener('click',()=>{
+  const mixed=[...practiceBank,...hardBank];
+  for(let i=mixed.length-1;i>0;i--){let j=Math.floor(Math.random()*(i+1));[mixed[i],mixed[j]]=[mixed[j],mixed[i]];}
+  const ten=mixed.slice(0,10);
+  document.getElementById('finalQuiz').innerHTML='';
+  makeQuiz('finalQuiz',ten);
+});
+</script>
+</body>
+</html>
